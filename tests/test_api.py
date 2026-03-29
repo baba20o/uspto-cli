@@ -40,6 +40,22 @@ def test_search_patents(mock_request, client):
 
 
 @patch("uspto.api.USPTOClient._request")
+def test_search_patents_with_fields(mock_request, client):
+    mock_request.return_value = {"count": 0, "patentFileWrapperDataBag": []}
+    client.search_patents("AI", fields="applicationNumberText,applicationMetaData.inventionTitle")
+    args = mock_request.call_args
+    assert args[1]["params"]["fields"] == "applicationNumberText,applicationMetaData.inventionTitle"
+
+
+@patch("uspto.api.USPTOClient._request")
+def test_search_patents_with_facets(mock_request, client):
+    mock_request.return_value = {"count": 0, "patentFileWrapperDataBag": [], "facets": {}}
+    client.search_patents("AI", facets="applicationMetaData.firstApplicantName")
+    args = mock_request.call_args
+    assert args[1]["params"]["facets"] == "applicationMetaData.firstApplicantName"
+
+
+@patch("uspto.api.USPTOClient._request")
 def test_get_application(mock_request, client):
     mock_request.return_value = {"count": 1, "patentFileWrapperDataBag": [{"applicationNumberText": "14412875"}]}
     result = client.get_application("14412875")
@@ -59,6 +75,19 @@ def test_get_application_assignment(mock_request, client):
     mock_request.return_value = {"count": 1}
     client.get_application_assignment("14412875")
     assert "assignment" in mock_request.call_args[0][1]
+
+
+@patch("uspto.api.USPTOClient._request")
+def test_get_application_continuity(mock_request, client):
+    mock_request.return_value = {
+        "count": 1,
+        "patentFileWrapperDataBag": [{
+            "parentContinuityBag": [{"parentApplicationNumberText": "12345"}],
+            "childContinuityBag": [],
+        }]
+    }
+    result = client.get_application_continuity("14412875")
+    assert "continuity" in mock_request.call_args[0][1]
 
 
 @patch("uspto.api.USPTOClient._request")
