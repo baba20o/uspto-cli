@@ -149,13 +149,15 @@ uspto clear-cache
 
 ## Output Formats
 
-Every search command supports three output modes:
+The patent commands (`search`, `lookup`, `landscape`, `family`, `assignee`) support three output modes:
 
 | Flag | Format | Use case |
 |------|--------|----------|
 | *(default)* | Rich terminal tables | Human use in terminal |
 | `--markdown` / `-m` | Markdown tables | Agent consumption, piping |
 | `--json-output` / `-j` | Raw JSON | Programmatic access |
+
+`petitions`, `ptab`, `appeals`, `datasets` and `status-codes` support only `--json-output` / `-j`. Without it, they print the raw JSON response in a terminal panel, truncated to the first 3,000 characters. Likewise, `lookup --section` values other than `full` and `meta-data` show the section JSON truncated to 5,000 characters. Use `-j` whenever you need the complete response.
 
 ```bash
 # Rich table (default)
@@ -175,6 +177,13 @@ uspto search "AI" -j | jq '.patentFileWrapperDataBag[].applicationNumberText'
 | `--debug` | Enable debug logging (shows API calls, cache hits) |
 | `--no-cache` | Disable response caching (24hr TTL by default) |
 | `--api-key` | Pass API key directly (overrides `USPTO_KEY` env) |
+
+Global options go before the command name:
+
+```bash
+uspto --no-cache search "CRISPR" --full
+uspto --debug lookup 14412875
+```
 
 ## Query Syntax
 
